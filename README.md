@@ -8,7 +8,7 @@ Suport DB : MySQL, H2(For Testing)
 
 DB Versioning : FLyway (https://flywaydb.org)
 
-Framework : Spring Boot,Spring Batch,Thymeleaf (https://projects.spring.io/spring-boot/)
+Framework : Spring Boot,Spring Batch (https://projects.spring.io/spring-boot/)
 
 Security : Spring Security (http://projects.spring.io/spring-security/)
 
@@ -18,4 +18,7 @@ Social API : Twitter API (https://dev.twitter.com/docs)
 
 Build Manager : Maven (https://maven.apache.org/)
 
+UnitTest : JUnit
+
+Viewer : Thymeleaf, Boostrap
 
