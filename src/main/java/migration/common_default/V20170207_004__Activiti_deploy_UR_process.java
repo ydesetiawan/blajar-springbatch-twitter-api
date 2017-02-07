@@ -17,10 +17,10 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
  * @version 1.0, Aug 13, 2014
  * @since 3.2.0
  */
-public class V20170207_002__Activiti_deploy_UR_process implements JdbcMigration {
+public class V20170207_004__Activiti_deploy_UR_process implements JdbcMigration {
 
     private static Logger log = LoggerFactory
-            .getLogger(V20170207_002__Activiti_deploy_UR_process.class);
+            .getLogger(V20170207_004__Activiti_deploy_UR_process.class);
 
     private static final String PROCESS = "activiti/UserRegistrationProcess.bpmn";
 
