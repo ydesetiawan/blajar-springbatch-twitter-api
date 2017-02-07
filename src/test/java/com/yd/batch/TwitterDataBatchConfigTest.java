@@ -7,8 +7,7 @@ import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.AssertionErrors;
 
@@ -18,8 +17,7 @@ import org.springframework.test.util.AssertionErrors;
  * @since
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@IntegrationTest
-@SpringApplicationConfiguration(classes = { TwitterDataBatchConfig.class,
+@SpringBootTest(classes = { TwitterDataBatchConfig.class,
 		BatchConfigTest.class })
 public class TwitterDataBatchConfigTest {
 

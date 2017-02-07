@@ -1,5 +1,7 @@
 package com.yd.apps;
 
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.impl.jobexecutor.JobExecutor;
 import org.quartz.Scheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +67,22 @@ public class ShutdownHook extends Thread {
             }
         } catch (Exception e) {
             log.warn("Error stopping Spring Batch jobs", e);
+        }
+
+        try {
+            log.info("Stopping Activiti job executor...");
+            JobExecutor jobExecutor = context.getBean(JobExecutor.class);
+            jobExecutor.shutdown();
+        } catch (Exception e) {
+            log.warn("Error stopping Activiti job executor", e);
+        }
+        
+        try {
+            log.info("Stopping Activiti process engine...");
+            ProcessEngine processEngine = context.getBean(ProcessEngine.class);
+            processEngine.close();
+        } catch (Exception e) {
+            log.warn("Error stopping Activiti process engine", e);
         }
 
         log.info("Closing Spring application context...");

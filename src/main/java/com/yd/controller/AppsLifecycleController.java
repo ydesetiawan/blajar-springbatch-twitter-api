@@ -1,5 +1,6 @@
 package com.yd.controller;
 
+import org.activiti.engine.impl.jobexecutor.JobExecutor;
 import org.apache.log4j.Logger;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -23,10 +24,15 @@ public class AppsLifecycleController implements
 
     @Autowired
     private Scheduler scheduler;
+    @Autowired
+    private JobExecutor jobExecutor;
 
     @Override
     public void onApplicationEvent(AppsLifecycleEvent event) {
         if (event instanceof AppsLifecycleStartupEvent) {
+
+            log.info("Starting Activiti JobExecutor...");
+            jobExecutor.start();
 
             log.info("Starting Quartz Scheduler...");
             try {
