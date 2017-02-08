@@ -1,5 +1,6 @@
 <!-- Navigation -->
-<nav th:fragment="navbar" class="navbar navbar-default navbar-static-top" role="navigation"
+<nav th:fragment="navbar"
+	class="navbar navbar-default navbar-static-top" role="navigation"
 	style="margin-bottom: 0">
 	<div class="navbar-header">
 		<button type="button" class="navbar-toggle" data-toggle="collapse"
@@ -16,7 +17,8 @@
 				<i class="fa fa-caret-down"></i>
 		</a>
 			<ul class="dropdown-menu dropdown-user">
-				<li><a th:href="@{/logout}"><i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
+				<li><a th:href="@{/logout}"><i class="fa fa-sign-out fa-fw"></i>
+						Logout</a></li>
 			</ul></li>
 	</ul>
 
@@ -25,6 +27,8 @@
 			<ul class="nav" id="side-menu">
 				<li><a th:href="@{'/'}"><i class="fa fa-dashboard fa-fw"></i>
 						Dashboard</a></li>
+				<li><a th:href="@{'/tasks'}"><i class="fa fa-list fa-fw"></i>
+						Tasks</a></li>
 				<li><a href="#"><i class="fa fa-wrench fa-fw"></i>
 						Administration<span class="fa arrow"></span></a>
 					<ul class="nav nav-second-level">

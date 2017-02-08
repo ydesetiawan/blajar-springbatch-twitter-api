@@ -25,7 +25,7 @@ public class AppsLifecycleController implements
     @Autowired
     private Scheduler scheduler;
     @Autowired
-    private JobExecutor jobExecutor;
+    JobExecutor jobExecutor;
 
     @Override
     public void onApplicationEvent(AppsLifecycleEvent event) {

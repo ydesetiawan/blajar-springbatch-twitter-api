@@ -1,7 +1,11 @@
 package com.yd.persistence.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import com.yd.persistence.model.User;
 import com.yd.persistence.model.UserRole;
 
 /**
@@ -10,5 +14,11 @@ import com.yd.persistence.model.UserRole;
  * @since
  */
 public interface UserRoleRepository extends JpaRepository<UserRole, String> {
+
+    @Query("select ur from UserRole ur where ur.user = ?1")
+    public List<UserRole> findByUser(User user);
+
+    @Query("SELECT ur FROM UserRole ur WHERE ur.role IN (?1) GROUP BY ur.user")
+    public List<UserRole> findByRoleNames(List<String> list);
 
 }

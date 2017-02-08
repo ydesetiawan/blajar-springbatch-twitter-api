@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<title th:text="${@environment.getProperty('application_name')}"></title>
+</head>
+<body>
+	<div th:replace="base::css-core"></div>
+	<div id="wrapper">
+		<div th:replace="layout-dashboard :: navbar"></div>
+		<div id="page-wrapper">
+			<div class="row">
+				<div class="col-lg-12">
+					<div id="content">
+						<section>
+							<h1 th:text="${#messages.msg('label.tasks.title')}">Task
+								List</h1>
+							<div th:if="${alertSuccess}" class="alert alert-success fade in">
+								<a href="#" class="close" data-dismiss="alert">&times;</a><span
+									th:text="${alertSuccess}">Success message.</span>
+							</div>
+							<div th:if="${alertWarning}" class="alert alert-warning fade in">
+								<a href="#" class="close" data-dismiss="alert">&times;</a><span
+									th:text="${alertWarning}">Warning message.</span>
+							</div>
+
+							<div>
+								<div class="row">
+									<div class="col-lg-2">
+										<input type="text" id="searchParam" class="form-control"
+											name="searchParam" placeholder="Business Key"></input>
+									</div>
+									<div class="col-lg-1">
+										<span id="searchButton" class="btn btn-sm btn-primary">
+											<span th:text="${#messages.msg('label.tasks.search')}">Search</span>
+										</span>
+									</div>
+								</div>
+								<br />
+								<p>
+									<strong><span
+										th:text="${#messages.msg('label.tasks.totalNumberOfResult')} + ': '+ ${count} "></span></strong>
+								</p>
+								<p class="btn-group btn-group-xs">
+									<a th:href="@{/tasks}" class="btn btn-default"><span
+										class="glyphicon glyphicon-remove-circle"></span> <span
+										th:text="${#messages.msg('label.tasks.resetSearch')}">Reset
+											Search</span></a>
+								</p>
+							</div>
+							<div th:if="${#lists.isEmpty(tasks)}">
+								<span th:text="${#messages.msg('label.tasks.warning.isEmpty')}">Warning
+									task is empty </span>
+							</div>
+
+							<div th:if="${not #lists.isEmpty(tasks)}">
+								<table class="table table-hover">
+									<thead>
+										<tr>
+											<th><span
+												th:text="${#messages.msg('label.tasks.businessKey')}">Business
+													Key</span></th>
+											<th><span th:text="${#messages.msg('label.tasks.name')}">Name</span></th>
+											<th><span
+												th:text="${#messages.msg('label.tasks.created')}">Created</span></th>
+											<th><span
+												th:text="${#messages.msg('label.tasks.action')}">Action</span></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="task : ${tasks}">
+											<td th:text="${businessKeys[task.id]}">key</td>
+											<td th:text="${task.name}">name</td>
+											<td><span th:if="${@xchange3Util.showRelativeTime}"
+												class="timeago"
+												th:title="${@documentController.getIso8601DateFormat(task.createTime)}"
+												th:text="${task.createTime}"></span><span
+												th:if="${!@xchange3Util.showRelativeTime}"
+												th:text="${#calendars.format(task.createTime,'dd MMM yyyy HH:mm')}"></span></td>
+											<td th:if="${businessKeys[task.id] != null}"><a
+												th:if="${#strings.startsWith(businessKeys[task.id],'JOB')}"
+												class="btn btn-xs btn-primary"
+												th:href="@{/task/job/__${task.id}__}" href="#"
+												th:text="${#messages.msg('label.tasks.view')}">View</a> <a
+												th:unless="${#strings.startsWith(businessKeys[task.id],'JOB')}"
+												class="btn btn-xs btn-primary"
+												th:href="@{/task/__${task.id}__}" href="#"
+												th:text="${#messages.msg('label.tasks.view')}">View</a></td>
+										</tr>
+									</tbody>
+								</table>
+
+								<ul class="pager">
+									<li><a
+										th:href="@{/tasks(start=${start-10 lt 0 ? 0 : start-10})}"
+										href="#">Newer</a></li>
+									<li><a
+										th:href="@{/tasks(start=${start+10 lt count ? start+10 : start})}"
+										href="#">Older</a></li>
+								</ul>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- /#page-wrapper -->
+	</div>
+	<!-- /#wrapper -->
+	<div th:replace="base::js-core"></div>
+	<script type="text/javascript">
+		//<![CDATA[
+		jQuery(document).ready(function() {
+			jQuery("span.timeago").timeago();
+			(window.formDocumentReady || function() {
+			})();
+			setTimeout(function() {
+				$(".alert").alert('close');
+			}, 8000);
+		});
+		$("ul#menu-list li#tasks-list").addClass("active");
+		$("#searchButton").click(function() {
+			var param = $('#searchParam').val();
+			window.open('/tasks?businessKey=' + param, '_self');
+		});
+		$("#searchParam").keypress(function(e) {
+			if (e.which == '13') {
+				var param = $('#searchParam').val();
+				window.open('/tasks?businessKey=' + param, '_self');
+			}
+		});
+		//]]>
+	</script>
+</body>
+</html>
