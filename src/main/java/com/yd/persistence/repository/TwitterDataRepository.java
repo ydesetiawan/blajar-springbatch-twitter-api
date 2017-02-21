@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.yd.persistence.model.TwitterData;
+import com.yd.persistence.repository.model.TwitterData;
 
 /**
  * @author edys

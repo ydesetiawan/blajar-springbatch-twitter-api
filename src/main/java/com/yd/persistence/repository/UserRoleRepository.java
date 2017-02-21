@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.yd.persistence.model.User;
-import com.yd.persistence.model.UserRole;
+import com.yd.persistence.repository.model.User;
+import com.yd.persistence.repository.model.UserRole;
 
 /**
  * @author edys

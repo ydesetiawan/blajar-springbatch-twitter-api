@@ -30,10 +30,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.yd.batch.JobLauncherDetails;
 import com.yd.common.util.AppsUtil;
-import com.yd.persistence.model.User;
-import com.yd.persistence.model.UserRole;
 import com.yd.persistence.repository.UserRepository;
 import com.yd.persistence.repository.UserRoleRepository;
+import com.yd.persistence.repository.model.User;
+import com.yd.persistence.repository.model.UserRole;
 import com.yd.setting.ShowTaskSettings;
 
 /**

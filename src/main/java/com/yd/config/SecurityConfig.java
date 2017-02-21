@@ -59,7 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .permitAll();
 
-        http.authorizeRequests().antMatchers("/", "/**").hasRole("ADMIN");
+        http.authorizeRequests().antMatchers("/", "/**").hasRole("USER");
 
         http.sessionManagement().maximumSessions(maximumSessions)
                 .expiredUrl("/login?error=expired")

@@ -13,7 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.yd.persistence.model.User;
+import com.yd.persistence.repository.model.User;
 
 /**
  * @author edys

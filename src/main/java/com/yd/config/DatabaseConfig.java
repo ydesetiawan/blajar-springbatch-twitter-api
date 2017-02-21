@@ -38,7 +38,7 @@ public class DatabaseConfig {
 	public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
 		LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
 		em.setDataSource(dataSource);
-		em.setPackagesToScan(new String[] { "com.yd.persistence.model" });
+		em.setPackagesToScan(new String[] { "com.yd.persistence.repository.model" });
 		em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
 		em.setJpaProperties(getProperties());
 		return em;

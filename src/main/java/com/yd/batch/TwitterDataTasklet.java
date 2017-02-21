@@ -20,8 +20,8 @@ import org.springframework.social.twitter.api.Twitter;
 import org.springframework.stereotype.Component;
 
 import com.yd.config.TwitterSearchParamsConfig;
-import com.yd.persistence.model.TwitterData;
 import com.yd.persistence.repository.TwitterDataRepository;
+import com.yd.persistence.repository.model.TwitterData;
 
 /**
  * @author edys
