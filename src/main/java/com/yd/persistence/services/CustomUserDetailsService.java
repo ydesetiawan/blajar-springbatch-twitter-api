@@ -20,7 +20,7 @@ import com.yd.security.AppsUserDetails;
  * @version 1.0, Jan 20, 2017
  * @since
  */
-@Service("userDetailsService")
+@Service
 public class CustomUserDetailsService implements UserDetailsService {
 
 	@Autowired

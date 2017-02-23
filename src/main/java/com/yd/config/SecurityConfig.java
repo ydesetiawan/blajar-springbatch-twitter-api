@@ -3,7 +3,6 @@ package com.yd.config;
 import javax.servlet.http.HttpSessionEvent;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,8 +15,12 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import com.yd.security.CustomAuthenticationSuccessHandler;
 
 /**
  * @author edys
@@ -28,68 +31,86 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    @Qualifier("userDetailsService")
-    UserDetailsService userDetailsService;
+	@Autowired
+	UserDetailsService customUserDetailsService;
 
-    @Autowired
-    private SessionRegistry sessionRegistry;
+	@Autowired
+	private SessionRegistry sessionRegistry;
 
-    @Value("${login.maximum_sessions}")
-    private int maximumSessions;
+	@Value("${login.maximum_sessions}")
+	private int maximumSessions;
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth)
-            throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(
-                passwordEncoder());
-    }
+	@Autowired
+	public void configureGlobal(AuthenticationManagerBuilder auth)
+			throws Exception {
+		auth.userDetailsService(customUserDetailsService).passwordEncoder(
+				passwordEncoder());
+	}
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
 
-        http.authorizeRequests()
-                .antMatchers("/data/**", "/dist/**", "/less/**", "/vendor/**")
-                .permitAll();
+		http.authorizeRequests()
+				.antMatchers("/data/**", "/dist/**", "/less/**", "/vendor/**")
+				.permitAll();
 
-        http.formLogin().loginPage("/login").defaultSuccessUrl("/")
-                .failureUrl("/login?error=failure").permitAll().and()
-                .authorizeRequests().antMatchers("/login").permitAll();
-        http.logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                .permitAll();
+		http.formLogin().loginPage("/login").defaultSuccessUrl("/")
+				.failureUrl("/login?error=failure").permitAll().and()
+				.authorizeRequests().antMatchers("/login").permitAll();
+		http.logout()
+				.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+				.permitAll();
+		http.authorizeRequests().antMatchers("/support/switchUser")
+        .hasAnyRole("USER");
+		http.authorizeRequests().antMatchers("/", "/**").hasRole("USER");
+		http.addFilter(customSwitchUserFilter());
 
-        http.authorizeRequests().antMatchers("/", "/**").hasRole("USER");
+		http.sessionManagement().maximumSessions(maximumSessions)
+				.expiredUrl("/login?error=expired")
+				.sessionRegistry(sessionRegistry).and()
+				.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
+	}
 
-        http.sessionManagement().maximumSessions(maximumSessions)
-                .expiredUrl("/login?error=expired")
-                .sessionRegistry(sessionRegistry).and()
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
-    }
+	@Bean
+	public SwitchUserFilter customSwitchUserFilter() {
+		SwitchUserFilter switchUserFilter = new SwitchUserFilter();
+		switchUserFilter.setUserDetailsService(customUserDetailsService);
+		switchUserFilter.setSwitchUserUrl("/support/switchUser");
+		switchUserFilter.setExitUserUrl("/support/switchUserExit");
+		switchUserFilter
+				.setSuccessHandler(customAuthenticationSuccessHandler());
+		switchUserFilter.setUsernameParameter("username");
+		return switchUserFilter;
+	}
 
-    @Bean
-    HttpSessionEventPublisher httpSessionEventPublisher() {
-        return new HttpSessionEventPublisher() {
-            @Override
-            public void sessionCreated(HttpSessionEvent event) {
-                super.sessionCreated(event);
-            }
+	@Bean
+	public AuthenticationSuccessHandler customAuthenticationSuccessHandler() {
+		return new CustomAuthenticationSuccessHandler();
+	}
 
-            @Override
-            public void sessionDestroyed(HttpSessionEvent event) {
-                super.sessionDestroyed(event);
-            }
-        };
-    }
+	@Bean
+	HttpSessionEventPublisher httpSessionEventPublisher() {
+		return new HttpSessionEventPublisher() {
+			@Override
+			public void sessionCreated(HttpSessionEvent event) {
+				super.sessionCreated(event);
+			}
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+			@Override
+			public void sessionDestroyed(HttpSessionEvent event) {
+				super.sessionDestroyed(event);
+			}
+		};
+	}
 
-    @Bean
-    SessionRegistry sessionRegistry() {
-        return new SessionRegistryImpl();
+	@Bean
+	public BCryptPasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    }
+	@Bean
+	SessionRegistry sessionRegistry() {
+		return new SessionRegistryImpl();
+
+	}
 }

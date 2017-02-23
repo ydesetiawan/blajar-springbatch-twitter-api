@@ -103,4 +103,13 @@ public class AppsUtil {
 		else
 			return "asc";
 	}
+
+	public static boolean hasUserManagementAuthority() {
+		for (GrantedAuthority ga : getAuthentication().getAuthorities()) {
+			if ("ROLE_USER_MANAGEMENT".equals(ga.getAuthority())
+					|| "ROLE_ADMIN".equals(ga.getAuthority()))
+				return true;
+		}
+		return false;
+	}
 }

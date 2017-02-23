@@ -25,21 +25,6 @@ import com.yd.persistence.repository.model.TwitterData;
 @Controller
 public class MainController {
 
-	@Autowired
-	private Twitter twitter;
-	@Autowired
-	private TwitterDataRepository twitterDataRepository;
-
-	@RequestMapping(value = { "/" }, method = RequestMethod.GET)
-	public ModelAndView home() {
-		List<TwitterData> twitterDatas = twitterDataRepository
-				.findAllByOrderByPostingDateAsc();
-		ModelAndView model = new ModelAndView();
-		model.addObject("twitter_datas", twitterDatas);
-		model.setViewName("home");
-		return model;
-	}
-
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public ModelAndView login(
 			@RequestParam(value = "error", required = false) String error,
@@ -56,17 +41,6 @@ public class MainController {
 		}
 		model.setViewName("login");
 		return model;
-	}
-
-	@RequestMapping(value = { "/setting" }, method = RequestMethod.GET)
-	public ModelAndView setting() {
-		List<TwitterData> twitterDatas = twitterDataRepository
-				.findAllByOrderByPostingDateAsc();
-		ModelAndView model = new ModelAndView();
-		model.addObject("twitter_datas", twitterDatas);
-		model.setViewName("home");
-		return model;
-
 	}
 
 	private String getErrorMessage(HttpServletRequest request, String key) {

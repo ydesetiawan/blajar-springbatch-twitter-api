@@ -1,9 +1,14 @@
 package com.yd.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+
+import javax.validation.Valid;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,17 +17,30 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.yd.common.util.AppsUtil;
 import com.yd.persistence.model.ModelUser;
 import com.yd.persistence.repository.RoleRepository;
 import com.yd.persistence.repository.UserRepository;
+import com.yd.persistence.repository.UserRoleRepository;
 import com.yd.persistence.repository.model.Role;
 import com.yd.persistence.repository.model.User;
+import com.yd.persistence.repository.model.UserRole;
+import com.yd.security.AppsUserDetails;
 
 @Controller
 public class UserController {
@@ -44,6 +62,8 @@ public class UserController {
 
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	private UserRoleRepository userRoleRepository;
 	@Autowired
 	private RoleRepository roleRepository;
 	@Autowired
@@ -137,4 +157,205 @@ public class UserController {
 		model.put(ROLE_LIST, roles);
 		return USER;
 	}
+
+	@RequestMapping(value = "/user", method = RequestMethod.POST)
+	public String addUser(Map<String, Object> model,
+			@Valid @ModelAttribute ModelUser user, BindingResult result,
+			RedirectAttributes redirect) throws IOException {
+		String action = user.getAction();
+		checkUserValidation(user, result);
+		if (result != null && result.hasErrors()) {
+			if (!"add".equals(action)) {
+				model.put(ACTION, "edit");
+			} else {
+				model.put(ACTION, action);
+			}
+			List<Role> roles = roleRepository.findAll();
+			model.put(USER, user);
+			model.put("result", result);
+			model.put(ROLE_LIST, roles);
+			addUserManagement(model);
+			return USER;
+		} else {
+			User newUser = userRepository.findOne(user.getUuid());
+			// if user does not exist, then create a new one
+			if (newUser == null) {
+				if (userRepository.findByUsername(user.getUsername()) != null) {
+					addUserManagement(model);
+					if ("add".equals(action)) {
+						model.put(ACTION, "add");
+						model.put(USER, user);
+						model.put("result", result);
+						model.put(ALERT_WARNING, "Account name already exist");
+						addUserManagement(model);
+						return USER;
+					} else {
+						model.put(ALERT_WARNING,
+								"Cannot update user, user exist or you are not allowed to update user");
+					}
+					return USER;
+				}
+				newUser = new User();
+				newUser.setUsername(user.getUsername());
+			}
+			newUser.setEmailAddress(user.getEmailAddress());
+			newUser.setFullName(user.getFullName());
+			newUser.setMobileNumber(user.getMobileNumber());
+			newUser.setPassword("$2a$10$E6Bpa4EsexSuJclB.87ziupCcY6xBIq0baVYxUwA0.6AtQlO/qGNq");
+			newUser.setEnabled(true);
+			newUser.setJobTitle(user.getJobTitle());
+
+			userRepository.saveAndFlush(newUser);
+
+			// if (hasUserManagementAuthority()) {
+			updateUserAndRole(user, newUser);
+			reloadDocstoreAndRoleSession();
+			// }
+
+			redirect.addFlashAttribute(ALERT_SUCCESS,
+					"User profile has been updated.");
+
+			return "redirect:user/" + newUser.getUuid() + VIEW;
+		}
+	}
+
+	@RequestMapping(value = "/user/{userId}/view", method = RequestMethod.GET)
+	public String viewUser(Map<String, Object> model,
+			@PathVariable("userId") String userId) {
+		ModelUser user = getUserProfile(userId, "view");
+
+		model.put(ACTION, "view");
+		addUserManagement(model);
+
+		if (user == null) {
+			model.put(ALERT_WARNING, CANNOT_SHOW_USER_DOES_NOT_EXIST);
+			return USER;
+		}
+		Set<UserRole> roleNames = user.getUserRoles();
+		user.setUserRoles(roleNames);
+
+		model.put(USER, user);
+		return USER;
+	}
+
+	@RequestMapping(value = "/user/{userId}/edit", method = RequestMethod.GET)
+	public String editUserProfile(Map<String, Object> model,
+			@PathVariable("userId") String userId) {
+		model.put(ACTION, "edit");
+		addUserManagement(model);
+		if (AppsUtil.isSwitchedUser()) {
+			model.put(ALERT_WARNING, CANNOT_SHOW_USER_DOES_NOT_EXIST);
+			return USER;
+		}
+
+		ModelUser user = getUserProfile(userId, "edit");
+
+		if (user == null) {
+			model.put(ALERT_WARNING, CANNOT_SHOW_USER_DOES_NOT_EXIST);
+			return USER;
+		}
+		List<Role> roles = roleRepository.findAll();
+
+		model.put(ROLE_LIST, roles);
+		model.put(USER, user);
+		return USER;
+	}
+
+	@RequestMapping(value = "/user/{userId}/delete", method = RequestMethod.POST)
+	public String deleteUser(@PathVariable("userId") String userId,
+			RedirectAttributes redirect) {
+
+		User user = userRepository.findOne(userId);
+
+		String username;
+
+		username = user.getUsername();
+		List<UserRole> deleteUserRole = userRoleRepository
+				.findByUser(userRepository.findOne(user.getUuid()));
+		for (UserRole ur : deleteUserRole) {
+			userRoleRepository.delete(ur);
+		}
+
+		userRepository.delete(user);
+
+		redirect.addFlashAttribute(ALERT_WARNING, "User " + username
+				+ " has been deleted");
+
+		return "redirect:/users";
+
+	}
+
+	private void updateUserAndRole(ModelUser user, User newUser) {
+		Set<UserRole> userRoles = new HashSet<>();
+		if (user.getRoleNames() != null) {
+			for (String roleName : user.getRoleNames()) {
+				if (StringUtils.isNotBlank(roleName)) {
+					UserRole ur = new UserRole();
+					ur.setRole(roleRepository.findByRoleName(roleName));
+					ur.setUser(newUser);
+					userRoles.add(ur);
+				}
+			}
+		}
+		List<UserRole> deleteUserRole = userRoleRepository
+				.findByUser(userRepository.findOne(user.getUuid()));
+		for (UserRole ur : deleteUserRole) {
+			userRoleRepository.delete(ur);
+		}
+		userRoleRepository.save(userRoles);
+		userRoleRepository.flush();
+	}
+
+	private void reloadDocstoreAndRoleSession() {
+		AppsUserDetails principal = AppsUtil.getPrincipal();
+
+		User user = userRepository.getOne(principal.getUser().getUuid());
+
+		Set<GrantedAuthority> authorities = new HashSet<>();
+		for (UserRole userRole : user.getUserRole()) {
+			authorities.add(new SimpleGrantedAuthority("ROLE_"
+					+ userRole.getRole().getName()));
+		}
+		principal.setAuthorities(authorities);
+		Authentication authentication = new UsernamePasswordAuthenticationToken(
+				principal, AppsUtil.getAuthentication().getCredentials(),
+				authorities);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+	}
+
+	private ModelUser getUserProfile(String userId, String action) {
+		String currentUuid = AppsUtil.getActiveUser().getUuid();
+
+		// if (hasUserManagementAuthority()) {
+		if (StringUtils.isNotBlank(userId)) {
+			return new ModelUser(userRepository.findOne(userId), action);
+		} else {
+			return new ModelUser(userRepository.findOne(currentUuid), action);
+		}
+		// }
+
+		// if (userId == null)
+		// return new ModelUser(userRepository.findOne(currentUuid), action);
+		//
+		// if (StringUtils.equals(userId, currentUuid))
+		// return new ModelUser(userRepository.findOne(currentUuid), action);
+		// else
+		// return null;
+
+	}
+
+	protected void checkUserValidation(ModelUser user, BindingResult result) {
+		if (user.getUsername().contains(" ") && "add".equals(user.getAction())) {
+			result.addError(new ObjectError("userProfiles",
+					"Username couldn't contained space character"));
+		}
+	}
+
+	private void addUserManagement(Map<String, Object> model) {
+		// if (hasUserManagementAuthority())
+		model.put(USERMANAGEMENT, true);
+		// else
+		// model.put(USERMANAGEMENT, false);
+	}
+
 }

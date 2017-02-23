@@ -3,6 +3,7 @@ package com.yd.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.social.twitter.api.Twitter;
 import org.springframework.social.twitter.api.impl.TwitterTemplate;
 
@@ -13,6 +14,7 @@ import org.springframework.social.twitter.api.impl.TwitterTemplate;
  */
 @Configuration
 @ConfigurationProperties(prefix = "spring.social.twitter")
+@Profile("twitter-api")
 public class TwitterConfig {
 
     private String appId;

@@ -11,6 +11,7 @@
 		<div id="page-wrapper">
 			<div class="row">
 				<div class="col-lg-12">
+					<div th:replace="layout-dashboard :: switch-user"></div>
 					<h1 th:text="${#messages.msg('label.job_execution.title')}"
 						class="page-header">Job Execution Details</h1>
 				</div>

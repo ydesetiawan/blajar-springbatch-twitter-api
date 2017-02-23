@@ -2,6 +2,7 @@ package com.yd.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.social.twitter.api.SearchParameters.ResultType;
 
 /**
@@ -11,6 +12,7 @@ import org.springframework.social.twitter.api.SearchParameters.ResultType;
  */
 @Configuration
 @ConfigurationProperties(prefix = "twitter.search.params")
+@Profile("twitter-api")
 public class TwitterSearchParamsConfig {
 
 	private String query;

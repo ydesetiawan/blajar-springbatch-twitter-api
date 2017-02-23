@@ -1,6 +1,7 @@
 package com.yd.persistence.model;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.validation.constraints.Size;
@@ -46,6 +47,7 @@ public class ModelUser {
 	private String action;
 
 	private boolean disabled = false;
+	
 
 	public ModelUser() {
 
@@ -56,6 +58,7 @@ public class ModelUser {
 		this.emailAddress = user.getEmailAddress();
 		this.fullName = user.getFullName();
 		this.mobileNumber = user.getMobileNumber();
+		this.jobTitle = user.getJobTitle();
 		this.username = user.getUsername();
 		this.userRoles = user.getUserRole();
 		this.roleNames = getRoleNames();
@@ -111,8 +114,12 @@ public class ModelUser {
 	}
 
 	public Set<String> getRoleNames() {
-		return roleNames;
-	}
+        for (UserRole ur : getUserRoles()) {
+            roleNames.add(ur.getRole().getName());
+        }
+
+        return roleNames;
+    }
 
 	public void setRoleNames(Set<String> roleNames) {
 		this.roleNames = roleNames;
@@ -140,6 +147,18 @@ public class ModelUser {
 
 	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
+	}
+
+	public String getUserRoleList() {
+		String userRole = "";
+		Iterator<UserRole> roleIterator = getUserRoles().iterator();
+		while (roleIterator.hasNext()) {
+			userRole += roleIterator.next().getRole().getName();
+
+			if (roleIterator.hasNext())
+				userRole += ", ";
+		}
+		return userRole;
 	}
 
 }

@@ -1,41 +1,64 @@
-<!-- Navigation -->
-<nav th:fragment="navbar"
-	class="navbar navbar-default navbar-static-top" role="navigation"
-	style="margin-bottom: 0">
-	<div class="navbar-header">
-		<button type="button" class="navbar-toggle" data-toggle="collapse"
-			data-target=".navbar-collapse">
-			<span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span>
-			<span class="icon-bar"></span> <span class="icon-bar"></span>
-		</button>
-		<a class="navbar-brand" href="#">yD Apps</a>
-	</div>
+<!DOCTYPE html>
+<!--/* Copyright (C) 2014 ASYX International B.V. All rights reserved. */-->
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<meta charset="UTF-8" />
+</head>
+<body>
+	<!-- Navigation -->
+	<nav th:fragment="navbar"
+		class="navbar navbar-default navbar-static-top" role="navigation"
+		style="margin-bottom: 0">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse"
+				data-target=".navbar-collapse">
+				<span class="sr-only">Toggle navigation</span> <span
+					class="icon-bar"></span> <span class="icon-bar"></span> <span
+					class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="#">yD Apps</a>
+		</div>
 
-	<ul class="nav navbar-top-links navbar-right">
-		<li class="dropdown"><a class="dropdown-toggle"
-			data-toggle="dropdown" href="#"> <i class="fa fa-user fa-fw"></i>
-				<i class="fa fa-caret-down"></i>
-		</a>
-			<ul class="dropdown-menu dropdown-user">
-				<li><a th:href="@{/logout}"><i class="fa fa-sign-out fa-fw"></i>
-						Logout</a></li>
-			</ul></li>
-	</ul>
+		<ul class="nav navbar-top-links navbar-right">
+			<li class="dropdown"><a class="dropdown-toggle"
+				data-toggle="dropdown" href="#"> <i class="fa fa-user fa-fw"></i>
+					<i class="fa fa-caret-down"></i>
+			</a>
+				<ul class="dropdown-menu dropdown-user">
+					<li><a th:unless="${@appsUtil.isSwitchedUser()}"
+						th:href="@{/logout}"><i class="fa fa-sign-out fa-fw"></i>
+							Logout</a> <a th:if="${@appsUtil.isSwitchedUser()}"
+						th:href="@{/support/switchUserExit}"> Logout</a></li>
+				</ul></li>
+		</ul>
 
-	<div class="navbar-default sidebar" role="navigation">
-		<div class="sidebar-nav navbar-collapse">
-			<ul class="nav" id="side-menu">
-				<li><a th:href="@{'/'}"><i class="fa fa-dashboard fa-fw"></i>
-						Dashboard</a></li>
-				<li><a th:href="@{'/tasks'}"><i class="fa fa-list fa-fw"></i>
-						Tasks</a></li>
-				<li><a href="#"><i class="fa fa-wrench fa-fw"></i>
-						Administration<span class="fa arrow"></span></a>
-					<ul class="nav nav-second-level">
-						<li><a th:href="@{'/jobs'}">Job Scheduler</a></li>
-						<li><a th:href="@{'/users'}">User Management</a></li>
-					</ul></li>
-			</ul>
+		<div class="navbar-default sidebar" role="navigation">
+			<div class="sidebar-nav navbar-collapse">
+				<ul class="nav" id="side-menu">
+					<li><a th:href="@{'/'}"><i class="fa fa-dashboard fa-fw"></i>
+							Dashboard</a></li>
+					<li><a th:href="@{'/tasks'}"><i class="fa fa-list fa-fw"></i>
+							Tasks</a></li>
+					<li><a href="#"><i class="fa fa-wrench fa-fw"></i>
+							Administration<span class="fa arrow"></span></a>
+						<ul class="nav nav-second-level">
+							<li><a th:href="@{'/jobs'}">Job Scheduler</a></li>
+							<li><a th:href="@{'/users'}">User Management</a></li>
+						</ul></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div th:fragment="switch-user">
+		<div th:if="${@appsUtil.isSwitchedUser()}"
+			class="announcements alert alert-warning fade in">
+			<a href="#" class="close" data-dismiss="alert">&times;</a> You are
+			currently authorized as <span
+				th:text="${@appsUtil.getActiveUser().getUsername()}">user</span>.
+			Click <a th:href="@{/support/switchUserExit}">here</a> to exit.
 		</div>
 	</div>
-</nav>
+</body>
+</html>

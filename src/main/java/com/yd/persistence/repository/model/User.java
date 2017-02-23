@@ -52,6 +52,9 @@ public class User implements Serializable {
 	private boolean enabled;
 
 	@Column(length = 50)
+	private String jobTitle;
+
+	@Column(length = 50)
 	private String emailAddress;
 
 	@Column(length = 20)
@@ -62,7 +65,7 @@ public class User implements Serializable {
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private Set<UserRole> userRole = new HashSet<UserRole>(0);
-	
+
 	private int resultsPerPage = 15;
 
 	public User() {
@@ -161,6 +164,13 @@ public class User implements Serializable {
 	public void setResultsPerPage(int resultsPerPage) {
 		this.resultsPerPage = resultsPerPage;
 	}
-	
+
+	public String getJobTitle() {
+		return jobTitle;
+	}
+
+	public void setJobTitle(String jobTitle) {
+		this.jobTitle = jobTitle;
+	}
 
 }
