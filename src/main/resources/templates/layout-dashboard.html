@@ -21,15 +21,19 @@
 		</div>
 
 		<ul class="nav navbar-top-links navbar-right">
+			<li class="dropdown"><span
+				th:text="${@appsUtil.getActiveUser().getUsername()}">user</span></li>
 			<li class="dropdown"><a class="dropdown-toggle"
 				data-toggle="dropdown" href="#"> <i class="fa fa-user fa-fw"></i>
 					<i class="fa fa-caret-down"></i>
 			</a>
 				<ul class="dropdown-menu dropdown-user">
+					<li><a href="#" th:href="@{/user/__${@appsUtil.getActiveUserUuid()}__/view}"><i class="fa fa-user fa-fw"></i> User
+							Profile</a></li>
 					<li><a th:unless="${@appsUtil.isSwitchedUser()}"
 						th:href="@{/logout}"><i class="fa fa-sign-out fa-fw"></i>
 							Logout</a> <a th:if="${@appsUtil.isSwitchedUser()}"
-						th:href="@{/support/switchUserExit}"> Logout</a></li>
+						th:href="@{/support/switchUserExit}"> <i class="fa fa-sign-out fa-fw"></i> Logout</a></li>
 				</ul></li>
 		</ul>
 
