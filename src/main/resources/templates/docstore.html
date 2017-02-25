@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<title th:text="${@environment.getProperty('application_name')}"></title>
+</head>
+<body>
+	<div th:replace="base::css-core"></div>
+	<div id="wrapper">
+		<div th:replace="layout-dashboard :: navbar"></div>
+		<div id="page-wrapper">
+			<div class="row">
+				<div class="col-lg-12">
+					<div th:replace="layout-dashboard :: switch-user"></div>
+
+					<div id="content">
+						<form th:if="${docstore!=null}" id="form" action="#"
+							th:action="@{/docstore/add}" th:object="${docstore}"
+							method="POST">
+							<section th:if="${action == 'view'}">
+								<h1 class="page-header" th:text="${#messages.msg('label.docstore.title')}">Docstore
+									Details</h1>
+								<div th:if="${alertSuccess}" class="alert alert-success fade in">
+									<a href="#" class="close" data-dismiss="alert">&times;</a><span
+										th:text="${alertSuccess}">Success message.</span>
+								</div>
+								<div th:if="${alertWarning}" class="alert alert-warning fade in">
+									<a href="#" class="close" data-dismiss="alert">&times;</a><span
+										th:text="${alertWarning}">Warning message.</span>
+								</div>
+								<div class="error-info"></div>
+								<table class="table">
+									<thead>
+										<tr>
+											<th class="col-sm-4"><span
+												th:text="${#messages.msg('label.key')}">Key</span></th>
+											<th class="col-sm-6"><span
+												th:text="${#messages.msg('label.value')}">Value</span></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td th:text="${#messages.msg('label.docstore.reference')}">Reference</td>
+											<td th:text="*{reference}"></td>
+										</tr>
+										<tr>
+											<td th:text="${#messages.msg('label.docstore.name')}">Name</td>
+											<td th:text="*{docstoreDetails.company.name}">companyName</td>
+										</tr>
+										<tr>
+											<td
+												th:text="${#messages.msg('label.docstore.companyCode')}">Company
+												Code</td>
+											<td th:text="${partyCode}">companyCode</td>
+										</tr>
+										<tr>
+											<td
+												th:text="${#messages.msg('label.docstore.companyRegistrationNumber')}">Company
+												Registration Number</td>
+											<td th:text="*{docstoreDetails.companyRegistrationNumber}">companyRegistrationNumber</td>
+										</tr>
+										<tr>
+											<td
+												th:text="${#messages.msg('label.task.register.countryISOCode')}">Country
+												ISO Code</td>
+											<td th:text="*{docstoreDetails.company.countryISOCode}">countryISOCode</td>
+										</tr>
+										<tr>
+											<td
+												th:text="${#messages.msg('label.task.register.languageISOCode')}">Language
+												ISO Code</td>
+											<td th:text="*{docstoreDetails.company.languageISOCode}">languageISOCode</td>
+										</tr>
+										<tr>
+											<td th:text="${#messages.msg('label.task.register.city')}">City</td>
+											<td th:text="*{docstoreDetails.company.city}">city</td>
+										</tr>
+										<tr>
+											<td
+												th:text="${#messages.msg('label.task.register.postalCode')}">Postal
+												Code</td>
+											<td th:text="*{docstoreDetails.company.postalCode}">postalCode</td>
+										</tr>
+										<tr>
+											<td th:text="${#messages.msg('label.task.register.street1')}">Street
+												1</td>
+											<td th:text="*{docstoreDetails.company.street1}">street1</td>
+										</tr>
+										<tr>
+											<td th:text="${#messages.msg('label.task.register.street2')}">Street
+												2</td>
+											<td th:text="*{docstoreDetails.company.street2}">street2</td>
+										</tr>
+									</tbody>
+								</table>
+								<a th:href="@{/docstore/__${uuid}__/edit}"
+									class="btn btn-sm btn-warning"
+									th:text="${#messages.msg('label.button.edit')}">Edit</a>
+								<button class="btn btn-sm btn-danger" type="button"
+									th:text="${#messages.msg('label.button.delete')}"
+									data-toggle="modal" data-target="#modal-delete-docstore">Delete</button>
+							</section>
+							<section th:unless="${action == 'view'}">
+								<h1 class="page-header" th:if="${action == 'add'}"
+									th:text="${#messages.msg('label.docstore.add')}">Add
+									Details</h1>
+								<h1 class="page-header" th:if="${action == 'edit'}"
+									th:text="${#messages.msg('label.docstore.edit')}">Edit
+									Details</h1>
+								<div th:if="${alertSuccess}" class="alert alert-success fade in">
+									<a href="#" class="close" data-dismiss="alert">&times;</a><span
+										th:text="${alertSuccess}">Success message.</span>
+								</div>
+								<div th:if="${alertWarning}" class="alert alert-warning fade in">
+									<a href="#" class="close" data-dismiss="alert">&times;</a><span
+										th:text="${alertWarning}">Warning message.</span>
+								</div>
+								<div th:if="${result!=null AND result.hasErrors()}"
+									class="alert alert-warning fade in">
+									<ul>
+										<li th:each="err : ${result.allErrors}"
+											th:text="${err.defaultMessage}">Input is incorrect</li>
+									</ul>
+								</div>
+								<table class="table">
+									<thead>
+										<tr>
+											<th class="col-sm-4"><span
+												th:text="${#messages.msg('label.key')}">Key</span></th>
+											<th class="col-sm-6"><span
+												th:text="${#messages.msg('label.value')}">Value</span></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td th:text="${#messages.msg('label.docstore.reference')}">Reference</td>
+											<td><input type="text" id="reference"
+												th:name="reference" th:field="*{reference}"
+												class="form-control" /></td>
+										</tr>
+										<tr>
+											<td th:text="${#messages.msg('label.docstore.name')}">Name</td>
+											<td><input type="text" id="companyName"
+												th:name="docstoreDetails.company.name"
+												th:field="*{docstoreDetails.company.name}"
+												class="form-control" /></td>
+										</tr>
+										<tr>
+											<td
+												th:text="${#messages.msg('label.docstore.companyRegistrationNumber')}">Company
+												Registration Number</td>
+											<td><input type="text" id="companyRegistrationNumber"
+												th:name="docstoreDetails.companyRegistrationNumber"
+												th:field="*{docstoreDetails.companyRegistrationNumber}"
+												class="form-control" /></td>
+										</tr>
+										<tr>
+											<td
+												th:text="${#messages.msg('label.docstore.companyCode')}">Company
+												Code</td>
+											<td><input type="text" id="companyCode"
+												th:name="companyCode" th:field="*{companyCode}"
+												class="form-control" /></td>
+										</tr>
+										<tr>
+											<td
+												th:text="${#messages.msg('label.task.register.countryISOCode')}">Country
+												ISO Code</td>
+											<td><input type="text" id="countryISOCode"
+												th:name="docstoreDetails.company.countryISOCode"
+												th:field="*{docstoreDetails.company.countryISOCode}"
+												class="form-control" maxlength="3" /></td>
+										</tr>
+										<tr>
+											<td
+												th:text="${#messages.msg('label.task.register.languageISOCode')}">Language
+												ISO Code</td>
+											<td><input type="text" id="languageISOCode"
+												th:name="docstoreDetails.company.languageISOCode"
+												th:field="*{docstoreDetails.company.languageISOCode}"
+												class="form-control" maxlength="3" /></td>
+										</tr>
+										<tr>
+											<td th:text="${#messages.msg('label.task.register.city')}">City</td>
+											<td><input type="text" id="city"
+												th:name="docstoreDetails.company.city"
+												th:field="*{docstoreDetails.company.city}"
+												class="form-control" /></td>
+										</tr>
+										<tr>
+											<td
+												th:text="${#messages.msg('label.task.register.postalCode')}">Postal
+												Code</td>
+											<td><input type="text" id="postalCode"
+												th:name="docstoreDetails.company.postalCode"
+												th:field="*{docstoreDetails.company.postalCode}"
+												class="form-control" /></td>
+										</tr>
+										<tr>
+											<td th:text="${#messages.msg('label.task.register.street1')}">Street
+												1</td>
+											<td><input type="text" id="street1"
+												th:name="docstoreDetails.company.street1"
+												th:field="*{docstoreDetails.company.street1}"
+												class="form-control" /></td>
+										</tr>
+										<tr>
+											<td th:text="${#messages.msg('label.task.register.street2')}">Street
+												2</td>
+											<td><input type="text" id="street2"
+												th:name="docstoreDetails.company.street2"
+												th:field="*{docstoreDetails.company.street2}"
+												class="form-control" /></td>
+										</tr>
+									</tbody>
+								</table>
+								<input type="hidden" th:name="${_csrf.parameterName}"
+									th:value="${_csrf.token}" /> <input type="hidden"
+									th:name="action" th:value="${action}" /> <input
+									th:if="${action=='edit'}" type="hidden" th:name="uuid"
+									th:value="${uuid}" />
+								<input type="hidden" id="useradmin" th:name="useradmin"
+									th:value="${useradmin}" />
+								<button th:if="${action=='edit' or action=='add'}"
+									class="btn btn-sm btn-success" type="submit"
+									th:text="${#messages.msg('label.button.save')}">Save</button>
+								<button th:if="${action=='edit' or action=='add'}"
+									class="btn btn-sm btn-danger" type="reset"
+									th:text="${#messages.msg('label.button.reset')}">Reset</button>
+							</section>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal fade" id="modal-delete-docstore" tabindex="-1"
+			role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<form th:action="@{/docstore/__${uuid}__/delete}" method="POST">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h4 class="modal-title"
+								th:text="${#messages.msg('message.delete')}">Are you sure
+								want to delete this data?</h4>
+						</div>
+						<div class="modal-footer">
+							<input type="hidden" th:name="${_csrf.parameterName}"
+								th:value="${_csrf.token}" />
+							<button type="button" class="btn btn-default"
+								data-dismiss="modal"
+								th:text="${#messages.msg('label.button.close')}">Close</button>
+							<button type="submit" class="btn btn-danger"
+								th:text="${#messages.msg('label.button.delete')}">Delete</button>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div>
+
+		<div id="popup" class="popup" style="display: none;">
+			<div class="popup__body">
+				<div class="js-img"></div>
+			</div>
+			<div style="margin: 0 0 5px; text-align: center;">
+				<div class="js-upload btn btn-small btn-success">Upload</div>
+				<div class="js-cancel btn btn-small btn-warning">Cancel</div>
+			</div>
+		</div>
+	</div>
+	<div th:replace="base::js-core"></div>
+	<script type="text/javascript">
+		//<![CDATA[
+		jQuery(document).ready(function() {
+			jQuery("span.timeago").timeago();
+			setTimeout(function() {
+				$(".alert").alert('close');
+			}, 8000);
+		});
+		//]]>
+	</script>
+</body>
+</html>

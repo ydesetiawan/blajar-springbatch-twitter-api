@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<title th:text="${@environment.getProperty('application_name')}"></title>
+</head>
+<body>
+	<div th:replace="base::css-core"></div>
+	<div id="wrapper">
+		<div th:replace="layout-dashboard :: navbar"></div>
+		<div id="page-wrapper">
+			<div class="row">
+				<div class="col-lg-12">
+					<div th:replace="layout-dashboard :: switch-user"></div>
+					<div id="content">
+						<section>
+							<h1 class="page-header"
+								th:text="${#messages.msg('label.docstore.title')}">Docstore
+								Management</h1>
+							<form id="form" action="#" th:action="@{/docstores}" method="get">
+								<div th:if="${alertSuccess}" class="alert alert-success fade in">
+									<a href="#" class="close" data-dismiss="alert">&times;</a><span
+										th:text="${alertSuccess}">Success message.</span>
+								</div>
+								<div th:if="${alertWarning}" class="alert alert-warning fade in">
+									<a href="#" class="close" data-dismiss="alert">&times;</a><span
+										th:text="${alertWarning}">Warning message.</span>
+								</div>
+								<div class="controls controls-row">
+									<div class="controls">
+										<input id="selectedDocstores" type="hidden"
+											name="selectedDocstores" /> <input type="text"
+											id="searchParam" name="searchParam"></input>
+										<button id="searchButton" type="submit"
+											class="btn btn-xs btn-primary">
+											<span class="glyphicon glyphicon-search"></span> <span
+												th:text="${#messages.msg('label.docstore.search')}">Search
+												Docstore</span>
+										</button>
+										<span onclick="window.open('/docstore/add','_self');"
+											class="btn btn-xs btn-primary"><span
+											class="glyphicon glyphicon-user"></span> <span
+											th:text="${#messages.msg('label.docstore.title.add')}">Add
+												Docstore</span> </span>
+									</div>
+								</div>
+								<br />
+								<p class="btn-group btn-group-xs">
+									<button class="btn btn-default" type="submit" name="action"
+										value="reset">
+										<span class="glyphicon glyphicon-remove-circle"></span> <span
+											th:text="${#messages.msg('label.tasks.resetSearch')}">Reset
+											Search</span>
+									</button>
+								</p>
+								<div th:if="${#lists.isEmpty(docstores)}">
+									<span
+										th:text="${#messages.msg('label.docstore.warning.isEmpty')}">Warning
+										docstore is empty.</span>
+								</div>
+								<table class="table" th:if="${not #lists.isEmpty(docstores)}">
+									<thead>
+										<tr>
+											<th><input class="select_all" type="checkbox" /></th>
+											<th><span
+												th:text="${#messages.msg('label.docstore.name')}">Name</span></th>
+											<th><span
+												th:text="${#messages.msg('label.docstore.action')}">Action</span></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="d : ${docstores}" th:attr="data-uuid=${d.uuid}">
+											<td><input class="select_item" type="checkbox" /></td>
+											<td th:text="${d.reference}">username</td>
+											<td><a class="btn btn-xs btn-info"
+												th:href="@{/docstore/__${d.uuid}__}" href="#"
+												th:text="${#messages.msg('label.button.view')}">View</a></td>
+										</tr>
+									</tbody>
+								</table>
+							</form>
+
+							<div th:if="${reference != null}">
+								<ul class="pager">
+									<li><a
+										th:href="@{/docstores/__${reference}__(start=${start-10 lt 0 ? 0 : start-10})}"
+										th:text="${#messages.msg('label.button.previous')}" href="#">Previous</a></li>
+									<li><a
+										th:href="@{/docstores/__${reference}__(start=${start+10 lt count ? start+10 : (count lt start+10 and count gt start? start+10 : count)})}"
+										th:text="${#messages.msg('label.button.next')}" href="#">Next</a></li>
+								</ul>
+							</div>
+							<div th:unless="${reference != null}">
+								<ul class="pager">
+									<li><a
+										th:href="@{/docstores(start=${start-10 lt 0 ? 0 : start-10})}"
+										th:text="${#messages.msg('label.button.previous')}" href="#">Previous</a></li>
+									<li><a
+										th:href="@{/docstores(start=${start+10 lt count ? start+10 : (count lt start+10 and count gt start? start+10 : count)})}"
+										th:text="${#messages.msg('label.button.next')}" href="#">Next</a></li>
+								</ul>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<!-- /#wrapper -->
+	<div th:replace="base::js-core"></div>
+	<script type="text/javascript">
+		//<![CDATA[
+		jQuery(document).ready(function() {
+			jQuery("span.timeago").timeago();
+			setTimeout(function() {
+				$(".alert").alert('close');
+			}, 8000);
+		});
+		//]]>
+	</script>
+</body>
+</html>

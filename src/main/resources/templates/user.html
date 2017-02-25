@@ -12,22 +12,20 @@
 			<div class="row">
 				<div class="col-lg-12">
 					<div th:replace="layout-dashboard :: switch-user"></div>
-					<h1 class="page-header" th:unless="${usermanagement}"
-						th:text="${#messages.msg('label.userprofile.title')}"></h1>
-					<h1 class="page-header"
-						th:if="${usermanagement and action=='edit'}"
-						th:text="${#messages.msg('label.usermanagement.title.edit')}">
-					</h1>
-					<h1 class="page-header" th:if="${usermanagement and action=='add'}"
-						th:text="${#messages.msg('label.usermanagement.title.add')}"></h1>
-					<h1 class="page-header"
-						th:if="${usermanagement and action=='view'}"
-						th:text="${#messages.msg('label.usermanagement.title')}"></h1>
-				</div>
-				<div class="col-lg-12">
-
 					<div id="content">
 						<section>
+							<h1 class="page-header" th:unless="${usermanagement}"
+								th:text="${#messages.msg('label.userprofile.title')}"></h1>
+							<h1 class="page-header"
+								th:if="${usermanagement and action=='edit'}"
+								th:text="${#messages.msg('label.usermanagement.title.edit')}">
+							</h1>
+							<h1 class="page-header"
+								th:if="${usermanagement and action=='add'}"
+								th:text="${#messages.msg('label.usermanagement.title.add')}"></h1>
+							<h1 class="page-header"
+								th:if="${usermanagement and action=='view'}"
+								th:text="${#messages.msg('label.usermanagement.title')}"></h1>
 							<div th:if="${alertSuccess}" class="alert alert-success fade in">
 								<a href="#" class="close" data-dismiss="alert">&times;</a><span
 									th:utext="${alertSuccess}">Success message.</span>

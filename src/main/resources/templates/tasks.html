@@ -14,7 +14,7 @@
 					<div th:replace="layout-dashboard :: switch-user"></div>
 					<div id="content">
 						<section>
-							<h1 th:text="${#messages.msg('label.tasks.title')}">Task
+							<h1 th:text="${#messages.msg('label.tasks.title')}" class="page-header">Task
 								List</h1>
 							<div th:if="${alertSuccess}" class="alert alert-success fade in">
 								<a href="#" class="close" data-dismiss="alert">&times;</a><span

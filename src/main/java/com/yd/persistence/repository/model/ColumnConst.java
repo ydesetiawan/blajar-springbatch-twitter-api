@@ -1,8 +1,7 @@
-/* Copyright (C) 2014 ASYX International B.V. All rights reserved. */
 package com.yd.persistence.repository.model;
 
 /**
- * @author kusa
+ * @author edys
  * @version 3.0.0, Feb 6, 2014
  * @since 3.0.0
  */

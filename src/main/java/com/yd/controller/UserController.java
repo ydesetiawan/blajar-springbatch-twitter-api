@@ -46,19 +46,14 @@ import com.yd.security.AppsUserDetails;
 public class UserController {
 
 	private static final String USERS = "users";
-	private static final String FALSE = "false";
 	private static final String ALERT_SUCCESS = "alertSuccess";
 	private static final String VIEW = "/view";
-	private static final String REDIRECT_USERPROFILE = "redirect:/userprofile/";
 	private static final String CANNOT_SHOW_USER_DOES_NOT_EXIST = "Cannot show user, does not exist or user not allowed to view";
 	private static final String ALERT_WARNING = "alertWarning";
 	private static final String ACTION = "action";
 	private static final String USER = "user";
 	private static final String ROLE_LIST = "roleList";
 	private static final String USERMANAGEMENT = "usermanagement";
-	private static final String ACC_DISABLE_ATTR = "nsAccountLock";
-	private static final String ACC_UNLOCK_TIME_ATTR = "accountUnlockTime";
-	private static final String RESET_TIMESTAMP = "19700101000000Z";
 
 	@Autowired
 	private UserRepository userRepository;
