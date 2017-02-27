@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,6 +16,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.NaturalId;
@@ -66,6 +69,9 @@ public class User implements Serializable {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
 	private Set<UserRole> userRole = new HashSet<UserRole>(0);
 
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+	private Set<UserDocstoreLink> docstores = new HashSet<UserDocstoreLink>();
+
 	private int resultsPerPage = 15;
 
 	public User() {
@@ -83,6 +89,39 @@ public class User implements Serializable {
 		this.password = password;
 		this.enabled = enabled;
 		this.userRole = userRole;
+	}
+
+	@Transient
+	public UserDocstoreLink getDocstore(UUID docstoreUuid) {
+		if (docstoreUuid == null)
+			return null;
+		for (UserDocstoreLink link : docstores)
+			if (docstoreUuid.toString().equals(link.getDocstore().getUuid()))
+				return link;
+		return null;
+	}
+	
+	@Transient
+    public boolean hasDocstore(Docstore docstore) {
+        return (getDocstore(docstore) != null);
+    }
+	
+	@Transient
+    public UserDocstoreLink getDocstore(Docstore docstore) {
+        if (docstore == null)
+            return null;
+        for (UserDocstoreLink link : docstores)
+            if (docstore.equals(link.getDocstore()))
+                return link;
+        return null;
+    }
+
+	public Set<UserDocstoreLink> getDocstores() {
+		return docstores;
+	}
+
+	public void setDocstores(Set<UserDocstoreLink> docstores) {
+		this.docstores = docstores;
 	}
 
 	public String getUuid() {

@@ -2,6 +2,7 @@ package com.yd.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,11 +35,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.yd.common.util.AppsUtil;
 import com.yd.persistence.model.ModelUser;
+import com.yd.persistence.repository.DocstoreRepository;
 import com.yd.persistence.repository.RoleRepository;
+import com.yd.persistence.repository.UserDocstoreLinkRepository;
 import com.yd.persistence.repository.UserRepository;
 import com.yd.persistence.repository.UserRoleRepository;
+import com.yd.persistence.repository.model.Docstore;
 import com.yd.persistence.repository.model.Role;
 import com.yd.persistence.repository.model.User;
+import com.yd.persistence.repository.model.UserDocstoreLink;
 import com.yd.persistence.repository.model.UserRole;
 import com.yd.security.AppsUserDetails;
 
@@ -54,6 +59,7 @@ public class UserController {
 	private static final String USER = "user";
 	private static final String ROLE_LIST = "roleList";
 	private static final String USERMANAGEMENT = "usermanagement";
+	private static final String DOCSTORE_LIST = "docstoreList";
 
 	@Autowired
 	private UserRepository userRepository;
@@ -63,6 +69,10 @@ public class UserController {
 	private RoleRepository roleRepository;
 	@Autowired
 	private Environment env;
+	@Autowired
+	private DocstoreRepository docstoreRepository;
+	@Autowired
+	private UserDocstoreLinkRepository userDocstoreLinkRepository;
 
 	private int countPaging(int start, long maxPage) {
 		float resultPage = (float) (Math.ceil((double) start / 10) - 1);
@@ -146,10 +156,14 @@ public class UserController {
 		ModelUser user = new ModelUser(newUser, "add");
 		List<Role> roles = roleRepository.findAll();
 
+		List<Docstore> docstores = docstoreRepository
+				.findAllByOrderByReferenceAsc();
+
 		model.put(USER, user);
 		model.put(ACTION, "add");
 		model.put(USERMANAGEMENT, true);
 		model.put(ROLE_LIST, roles);
+		model.put(DOCSTORE_LIST, docstores);
 		return USER;
 	}
 
@@ -166,9 +180,13 @@ public class UserController {
 				model.put(ACTION, action);
 			}
 			List<Role> roles = roleRepository.findAll();
+			List<Docstore> docstores = docstoreRepository
+					.findAllByOrderByReferenceAsc();
+
 			model.put(USER, user);
 			model.put("result", result);
 			model.put(ROLE_LIST, roles);
+			model.put(DOCSTORE_LIST, docstores);
 			addUserManagement(model);
 			return USER;
 		} else {
@@ -203,7 +221,7 @@ public class UserController {
 			userRepository.saveAndFlush(newUser);
 
 			// if (hasUserManagementAuthority()) {
-			updateUserAndRole(user, newUser);
+			updateUserDocstoreAndRole(user, newUser);
 			reloadDocstoreAndRoleSession();
 			// }
 
@@ -228,7 +246,7 @@ public class UserController {
 		}
 		Set<UserRole> roleNames = user.getUserRoles();
 		user.setUserRoles(roleNames);
-
+		user.setDocstores(user.getDocstores());
 		model.put(USER, user);
 		return USER;
 	}
@@ -250,7 +268,9 @@ public class UserController {
 			return USER;
 		}
 		List<Role> roles = roleRepository.findAll();
-
+		List<Docstore> docstores = docstoreRepository
+				.findAllByOrderByReferenceAsc();
+		model.put(DOCSTORE_LIST, docstores);
 		model.put(ROLE_LIST, roles);
 		model.put(USER, user);
 		return USER;
@@ -271,6 +291,12 @@ public class UserController {
 			userRoleRepository.delete(ur);
 		}
 
+		List<UserDocstoreLink> deleteUserDocstoreLink = userDocstoreLinkRepository
+				.findByUser(userRepository.findOne(user.getUuid()));
+		for (UserDocstoreLink udl : deleteUserDocstoreLink) {
+			userDocstoreLinkRepository.delete(udl);
+		}
+
 		userRepository.delete(user);
 
 		redirect.addFlashAttribute(ALERT_WARNING, "User " + username
@@ -280,16 +306,27 @@ public class UserController {
 
 	}
 
-	private void updateUserAndRole(ModelUser user, User newUser) {
+	private void updateUserDocstoreAndRole(ModelUser user, User newUser) {
+		Set<UserDocstoreLink> userDocstoreLink = new HashSet<>();
+		for (String uuid : user.getDocstores()) {
+			Docstore docstore = docstoreRepository.findOne(uuid);
+			UserDocstoreLink udl = new UserDocstoreLink();
+			udl.setDocstore(docstore);
+			udl.setUser(newUser);
+			userDocstoreLink.add(udl);
+		}
+		List<UserDocstoreLink> deleteUserDocstoreLink = userDocstoreLinkRepository
+				.findByUser(userRepository.findOne(user.getUuid()));
+		for (UserDocstoreLink udl : deleteUserDocstoreLink) {
+			userDocstoreLinkRepository.delete(udl);
+		}
 		Set<UserRole> userRoles = new HashSet<>();
 		if (user.getRoleNames() != null) {
 			for (String roleName : user.getRoleNames()) {
-				if (StringUtils.isNotBlank(roleName)) {
-					UserRole ur = new UserRole();
-					ur.setRole(roleRepository.findByRoleName(roleName));
-					ur.setUser(newUser);
-					userRoles.add(ur);
-				}
+				UserRole ur = new UserRole();
+				ur.setRole(roleRepository.findByRoleName(roleName));
+				ur.setUser(newUser);
+				userRoles.add(ur);
 			}
 		}
 		List<UserRole> deleteUserRole = userRoleRepository
@@ -299,12 +336,32 @@ public class UserController {
 		}
 		userRoleRepository.save(userRoles);
 		userRoleRepository.flush();
+		userDocstoreLinkRepository.save(userDocstoreLink);
+		userDocstoreLinkRepository.flush();
 	}
 
 	private void reloadDocstoreAndRoleSession() {
 		AppsUserDetails principal = AppsUtil.getPrincipal();
 
+		List<UserDocstoreLink> userDocstoreLinks = userDocstoreLinkRepository
+				.findByUser(principal.getUser());
+
+		Set<Docstore> docstores = new HashSet<>();
+		for (UserDocstoreLink userDocstoreLink : userDocstoreLinks) {
+			docstores.add(userDocstoreLink.getDocstore());
+		}
+
+		principal.setDocstores(docstores);
+
 		User user = userRepository.getOne(principal.getUser().getUuid());
+		if (!user.hasDocstore(principal.getDocstore())) {
+			Docstore docstore = docstores.iterator().next();
+			principal.setDocstore(docstore);
+
+			UserDocstoreLink udl = user.getDocstore(docstore);
+			udl.setLastSelectedTime(new Date());
+			userDocstoreLinkRepository.saveAndFlush(udl);
+		}
 
 		Set<GrantedAuthority> authorities = new HashSet<>();
 		for (UserRole userRole : user.getUserRole()) {

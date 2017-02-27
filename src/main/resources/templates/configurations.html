@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<title th:text="${@environment.getProperty('application_name')}"></title>
+</head>
+<body>
+	<div th:replace="base::css-core"></div>
+	<div id="wrapper">
+		<div th:replace="layout-dashboard :: navbar"></div>
+		<div id="page-wrapper">
+			<div class="row">
+				<div class="col-lg-12">
+					<div th:replace="layout-dashboard :: switch-user"></div>
+					<div id="content">
+						<section>
+							<h1 class="page-header"
+								th:text="${#messages.msg('label.configurations.title')}">Configuration
+								Docstore List</h1>
+							<form id="form" action="#" th:action="@{/configurations}"
+								method="get">
+								<div th:if="${alertSuccess}" class="alert alert-success fade in">
+									<a href="#" class="close" data-dismiss="alert">&times;</a><span
+										th:text="${alertSuccess}">Success message.</span>
+								</div>
+								<div th:if="${alertWarning}" class="alert alert-warning fade in">
+									<a href="#" class="close" data-dismiss="alert">&times;</a><span
+										th:text="${alertWarning}">Warning message.</span>
+								</div>
+								<div th:if="${#lists.isEmpty(docstoreRelations)}">
+									<span
+										th:text="${#messages.msg('label.configurations.warning.isEmpty')}">Warning
+										docstores is empty.</span>
+								</div>
+								<p>
+									<strong><span
+										th:text="${#messages.msg('label.configuration.totalNumberOfResult')} + ': ' + ${count}"></span></strong>
+								</p>
+
+								<input id="confs" type="hidden" name="confs" />
+								<p class="btn-group btn-group-xs">
+									<span class="btn btn-default clear_selection"><span
+										class="glyphicon glyphicon-remove-circle"></span> <span
+										th:text="${#messages.msg('label.configurations.clearSelection')}">Clear
+											Selection</span></span> <span
+										onclick="window.open('/configurations/add','_self');"
+										class="btn btn-xs btn-primary"><span
+										class="glyphicon glyphicon-plus"></span> <span
+										th:text="${#messages.msg('label.configurations.add')}">Add
+											Conf</span> </span>
+								</p>
+								<table class="table"
+									th:if="${not #lists.isEmpty(docstoreRelations)}">
+									<thead>
+										<tr>
+											<th><input class="select_all" type="checkbox" /></th>
+											<th><span
+												th:text="${#messages.msg('label.configurations.principal')}">Principal</span></th>
+											<th><span
+												th:text="${#messages.msg('label.configurations.party')}">Participant</span></th>
+											<th><span
+												th:text="${#messages.msg('label.configurations.action')}">Action</span></th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="dr : ${docstoreRelations}"
+											th:attr="data-uuid=${dr.docstoreRelationUuid}">
+											<td><input class="select_item" type="checkbox" /></td>
+											<td th:text="${dr.principalDocstoreReference}">principalDocstoreReference</td>
+											<td th:text="${dr.partyDocstoreReference}">partyDocstoreReference</td>
+											<td><a class="btn btn-xs btn-primary"
+												th:href="@{/configurations/__${dr.docstoreRelationUuid}__}"
+												href="#"
+												th:text="${#messages.msg('label.configurations.view')}">View</a></td>
+										</tr>
+									</tbody>
+								</table>
+							</form>
+
+							<ul class="pager">
+								<li><a
+									th:href="@{/configurations(start=${start-10 lt 0 ? 0 : start-10})}"
+									th:text="${#messages.msg('label.button.previous')}" href="#">Previous</a></li>
+								<li><a
+									th:href="@{/configurations(start=${start+10 lt count ? start+10 : (count lt start+10 and count gt start? start+10 : count)})}"
+									th:text="${#messages.msg('label.button.next')}" href="#">Next</a></li>
+							</ul>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<!-- /#wrapper -->
+	<div th:replace="base::js-core"></div>
+	<script type="text/javascript">
+		//<![CDATA[
+		jQuery(document).ready(function() {
+			jQuery("span.timeago").timeago();
+			setT
+			imeout(function() {
+				$(".alert").alert('close');
+			}, 8000);
+		});
+		//]]>
+	</script>
+</body>
+</html>

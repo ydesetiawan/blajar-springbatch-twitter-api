@@ -12,6 +12,7 @@ import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.stereotype.Component;
 
 import com.yd.persistence.repository.model.User;
+import com.yd.persistence.repository.model.UserDocstoreLink;
 import com.yd.persistence.repository.model.UserRole;
 
 @Component
@@ -47,7 +48,11 @@ public class ModelUser {
 	private String action;
 
 	private boolean disabled = false;
-	
+
+	@NotEmpty(message = "Docstore could not be empty")
+	private Set<String> docstores = new HashSet<String>();
+
+	private Set<UserDocstoreLink> userDocstoreLink = new HashSet<UserDocstoreLink>();
 
 	public ModelUser() {
 
@@ -62,7 +67,41 @@ public class ModelUser {
 		this.username = user.getUsername();
 		this.userRoles = user.getUserRole();
 		this.roleNames = getRoleNames();
+		this.userDocstoreLink = user.getDocstores();
+		this.docstores = getDocstores();
 		this.action = action;
+	}
+
+	public Set<String> getDocstores() {
+		for (UserDocstoreLink udl : getUserDocstoreLink()) {
+			this.docstores.add(udl.getDocstore().getUuid());
+		}
+		return docstores;
+	}
+
+	public Set<UserDocstoreLink> getUserDocstoreLink() {
+		return userDocstoreLink;
+	}
+
+	public void setDocstores(Set<String> docstores) {
+		this.docstores = docstores;
+	}
+
+	public void setUserDocstoreLink(Set<UserDocstoreLink> userDocstoreLink) {
+		this.userDocstoreLink = userDocstoreLink;
+	}
+
+	public String getUserDocstoreList() {
+		String docstores = "";
+		Iterator<UserDocstoreLink> docstoreIterator = getUserDocstoreLink()
+				.iterator();
+		while (docstoreIterator.hasNext()) {
+			docstores += docstoreIterator.next().getDocstore().getReference();
+
+			if (docstoreIterator.hasNext())
+				docstores += ", ";
+		}
+		return docstores;
 	}
 
 	public String getUuid() {
@@ -114,12 +153,12 @@ public class ModelUser {
 	}
 
 	public Set<String> getRoleNames() {
-        for (UserRole ur : getUserRoles()) {
-            roleNames.add(ur.getRole().getName());
-        }
+		for (UserRole ur : getUserRoles()) {
+			roleNames.add(ur.getRole().getName());
+		}
 
-        return roleNames;
-    }
+		return roleNames;
+	}
 
 	public void setRoleNames(Set<String> roleNames) {
 		this.roleNames = roleNames;

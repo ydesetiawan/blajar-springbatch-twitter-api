@@ -13,6 +13,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.yd.persistence.repository.model.Docstore;
 import com.yd.persistence.repository.model.User;
 
 /**
@@ -22,244 +23,264 @@ import com.yd.persistence.repository.model.User;
  */
 public class AppsUserDetails implements UserDetails {
 
-    @SuppressWarnings("unused")
-    private static Logger log = Logger.getLogger(AppsUserDetails.class);
+	@SuppressWarnings("unused")
+	private static Logger log = Logger.getLogger(AppsUserDetails.class);
 
-    private static final long serialVersionUID = -1338282990755794283L;
+	private static final long serialVersionUID = -1338282990755794283L;
 
-    private Map<String, String> announcements;
+	private Map<String, String> announcements;
 
-    private Set<GrantedAuthority> authorities;
-    private Set<GrantedAuthority> secondFactorAuthorities;
-    private Set<GrantedAuthority> termsAcceptAuthorities;
+	private Set<GrantedAuthority> authorities;
+	private Set<GrantedAuthority> secondFactorAuthorities;
+	private Set<GrantedAuthority> termsAcceptAuthorities;
 
-    private Name dn;
+	private Name dn;
 
-    private String password;
+	private Docstore docstore;
 
-    private String perspective;
+	private Set<Docstore> docstores;
 
-    private User user;
+	private String password;
 
-    private String username;
+	private String perspective;
 
-    private boolean requireSecondFactor;
-    private boolean requireTermsAccept;
+	private User user;
 
-    public AppsUserDetails(String username, Set<GrantedAuthority> authorities) {
-        super();
-        this.username = username;
-        this.authorities = authorities;
-    }
+	private String username;
 
-    public AppsUserDetails(String username, String password,
-            Set<GrantedAuthority> authorities) {
-        super();
-        this.username = username;
-        this.password = password;
-        this.authorities = authorities;
-    }
+	private boolean requireSecondFactor;
+	private boolean requireTermsAccept;
 
-    public void acceptTerms() {
-        this.requireTermsAccept = false;
-        enableAuthoritiesForTermsAccept();
-    }
+	public AppsUserDetails(String username, Set<GrantedAuthority> authorities) {
+		super();
+		this.username = username;
+		this.authorities = authorities;
+	}
 
-    public void addAnnouncement(String key, String message) {
-        if (announcements == null) {
-            announcements = new HashMap<>();
-        }
-        announcements.put(key, message);
-    }
+	public AppsUserDetails(String username, String password,
+			Set<GrantedAuthority> authorities) {
+		super();
+		this.username = username;
+		this.password = password;
+		this.authorities = authorities;
+	}
 
-    private void disableAuthoritiesForSecondFactor() {
-        secondFactorAuthorities = authorities;
-        authorities = new HashSet<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_SECONDFACTOR"));
-    }
+	public void acceptTerms() {
+		this.requireTermsAccept = false;
+		enableAuthoritiesForTermsAccept();
+	}
 
-    private void disableAuthoritiesForTermsAccept() {
-        if (requireSecondFactor) {
-            termsAcceptAuthorities = secondFactorAuthorities;
-            secondFactorAuthorities = new HashSet<>();
-            secondFactorAuthorities.add(new SimpleGrantedAuthority(
-                    "ROLE_TERMSACCEPT"));
-        } else {
-            termsAcceptAuthorities = authorities;
-            authorities = new HashSet<>();
-            authorities.add(new SimpleGrantedAuthority("ROLE_TERMSACCEPT"));
-        }
-    }
+	public void addAnnouncement(String key, String message) {
+		if (announcements == null) {
+			announcements = new HashMap<>();
+		}
+		announcements.put(key, message);
+	}
 
-    private void enableAuthoritiesForTermsAccept() {
-        authorities = termsAcceptAuthorities;
-    }
+	private void disableAuthoritiesForSecondFactor() {
+		secondFactorAuthorities = authorities;
+		authorities = new HashSet<>();
+		authorities.add(new SimpleGrantedAuthority("ROLE_SECONDFACTOR"));
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        AppsUserDetails other = (AppsUserDetails) obj;
-        if (user == null) {
-            if (other.user != null)
-                return false;
-        } else if (!user.equals(other.user))
-            return false;
-        return true;
-    }
+	private void disableAuthoritiesForTermsAccept() {
+		if (requireSecondFactor) {
+			termsAcceptAuthorities = secondFactorAuthorities;
+			secondFactorAuthorities = new HashSet<>();
+			secondFactorAuthorities.add(new SimpleGrantedAuthority(
+					"ROLE_TERMSACCEPT"));
+		} else {
+			termsAcceptAuthorities = authorities;
+			authorities = new HashSet<>();
+			authorities.add(new SimpleGrantedAuthority("ROLE_TERMSACCEPT"));
+		}
+	}
 
-    public Map<String, String> getAnnouncements() {
-        return announcements;
-    }
+	private void enableAuthoritiesForTermsAccept() {
+		authorities = termsAcceptAuthorities;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.springframework.security.core.userdetails.UserDetails#getAuthorities
-     * ()
-     */
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AppsUserDetails other = (AppsUserDetails) obj;
+		if (user == null) {
+			if (other.user != null)
+				return false;
+		} else if (!user.equals(other.user))
+			return false;
+		return true;
+	}
 
-    public Name getDn() {
-        return dn;
-    }
+	public Map<String, String> getAnnouncements() {
+		return announcements;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.springframework.security.core.userdetails.UserDetails#getPassword()
-     */
-    @Override
-    public String getPassword() {
-        return password;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.security.core.userdetails.UserDetails#getAuthorities
+	 * ()
+	 */
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return authorities;
+	}
 
-    public String getPerspective() {
-        return perspective;
-    }
+	public Docstore getDocstore() {
+		return docstore;
+	}
 
-    public User getUser() {
-        return user;
-    }
+	public void setDocstore(Docstore docstore) {
+		this.docstore = docstore;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.springframework.security.core.userdetails.UserDetails#getUsername()
-     */
-    @Override
-    public String getUsername() {
-        return username;
-    }
+	public Set<Docstore> getDocstores() {
+		return docstores;
+	}
 
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((user == null) ? 0 : user.hashCode());
-        return result;
-    }
+	public void setDocstores(Set<Docstore> docstores) {
+		this.docstores = docstores;
+	}
 
-    public boolean isRequireSecondFactor() {
-        return requireSecondFactor;
-    }
+	public Name getDn() {
+		return dn;
+	}
 
-    public boolean isRequireTermsAccept() {
-        return requireTermsAccept;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.security.core.userdetails.UserDetails#getPassword()
+	 */
+	@Override
+	public String getPassword() {
+		return password;
+	}
 
-    public void removeAnnouncement(String key) {
-        if (announcements == null) {
-            return;
-        }
-        announcements.remove(key);
-    }
+	public String getPerspective() {
+		return perspective;
+	}
 
-    public void requireSecondFactor() {
-        this.requireSecondFactor = true;
-        disableAuthoritiesForSecondFactor();
-    }
+	public User getUser() {
+		return user;
+	}
 
-    public void requireTermsAccept() {
-        this.requireTermsAccept = true;
-        disableAuthoritiesForTermsAccept();
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.security.core.userdetails.UserDetails#getUsername()
+	 */
+	@Override
+	public String getUsername() {
+		return username;
+	}
 
-    public void setAnnouncements(Map<String, String> announcements) {
-        this.announcements = announcements;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((user == null) ? 0 : user.hashCode());
+		return result;
+	}
 
-    public void setPerspective(String perspective) {
-        this.perspective = perspective;
-    }
+	public boolean isRequireSecondFactor() {
+		return requireSecondFactor;
+	}
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+	public boolean isRequireTermsAccept() {
+		return requireTermsAccept;
+	}
 
-    public void setAuthorities(Set<GrantedAuthority> authorities) {
-        this.authorities = authorities;
-    }
+	public void removeAnnouncement(String key) {
+		if (announcements == null) {
+			return;
+		}
+		announcements.remove(key);
+	}
 
-    public AppsUserDetails withDn(Name dn) {
-        this.dn = dn;
-        return this;
-    }
+	public void requireSecondFactor() {
+		this.requireSecondFactor = true;
+		disableAuthoritiesForSecondFactor();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.springframework.security.core.userdetails.UserDetails#isAccountNonExpired
-     * ()
-     */
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+	public void requireTermsAccept() {
+		this.requireTermsAccept = true;
+		disableAuthoritiesForTermsAccept();
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.springframework.security.core.userdetails.UserDetails#isAccountNonLocked
-     * ()
-     */
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+	public void setAnnouncements(Map<String, String> announcements) {
+		this.announcements = announcements;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.springframework.security.core.userdetails.UserDetails#
-     * isCredentialsNonExpired()
-     */
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+	public void setPerspective(String perspective) {
+		this.perspective = perspective;
+	}
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.springframework.security.core.userdetails.UserDetails#isEnabled()
-     */
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	public void setAuthorities(Set<GrantedAuthority> authorities) {
+		this.authorities = authorities;
+	}
+
+	public AppsUserDetails withDn(Name dn) {
+		this.dn = dn;
+		return this;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.security.core.userdetails.UserDetails#isAccountNonExpired
+	 * ()
+	 */
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.security.core.userdetails.UserDetails#isAccountNonLocked
+	 * ()
+	 */
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.springframework.security.core.userdetails.UserDetails#
+	 * isCredentialsNonExpired()
+	 */
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.security.core.userdetails.UserDetails#isEnabled()
+	 */
+	@Override
+	public boolean isEnabled() {
+		return true;
+	}
 
 }

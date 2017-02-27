@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yd.persistence.repository.UserRepository;
+import com.yd.persistence.repository.model.Docstore;
+import com.yd.persistence.repository.model.UserDocstoreLink;
 import com.yd.persistence.repository.model.UserRole;
 import com.yd.security.AppsUserDetails;
 
@@ -41,6 +43,17 @@ public class CustomUserDetailsService implements UserDetailsService {
 		userDetails = new AppsUserDetails(username, user.getPassword(),
 				authorities);
 		userDetails.setUser(user);
+
+		userDetails.setUser(user);
+		Set<Docstore> docstores = new HashSet<Docstore>();
+		for (UserDocstoreLink udl : user.getDocstores()) {
+			Docstore ds = udl.getDocstore();
+			if (userDetails.getDocstore() == null) {
+				userDetails.setDocstore(ds);
+			}
+			docstores.add(ds);
+		}
+		userDetails.setDocstores(docstores);
 		return userDetails;
 	}
 

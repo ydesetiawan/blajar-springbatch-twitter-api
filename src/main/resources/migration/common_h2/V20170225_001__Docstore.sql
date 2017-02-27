@@ -42,3 +42,7 @@ CREATE TABLE `docstore_relation` (
   CONSTRAINT `DocstoreRelationFKPrincipal_docstore` FOREIGN KEY (`principalDocstore`) REFERENCES `docstore` (`uuid`),
   CONSTRAINT `DocstoreRelationFKParty_docstore` FOREIGN KEY (`partyDocstore`) REFERENCES `docstore` (`uuid`)
 );
+
+insert into docstore (uuid,reference) values ('783a5b1f-fce3-11e6-956f-a4db30962c11','ADMIN Docstore');
+insert into docstore_details (uuid,companyCity,companyName,companyStreet1,companyStreet2) values ('a509db8b-fce3-11e6-956f-a4db30962c11','Tanggerang 15326','YD ID','Cipondoh Indah','Cipondoh Tangerang Banten Indonesia');
+insert into user_docstore_link (user,docstore) values ('60c07adc-dd75-11e6-8e71-0025ab69e4c2','783a5b1f-fce3-11e6-956f-a4db30962c11');

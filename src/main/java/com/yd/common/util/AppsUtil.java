@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Calendar;
+import java.util.UUID;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import com.yd.persistence.repository.model.Docstore;
 import com.yd.persistence.repository.model.User;
 import com.yd.security.AppsUserDetails;
 
@@ -28,6 +30,14 @@ import com.yd.security.AppsUserDetails;
  */
 @Component
 public class AppsUtil {
+	
+	public static Docstore getActiveDocstore() {
+        return getPrincipal().getDocstore();
+    }
+
+    public static UUID getActiveDocstoreUuid() {
+        return UUID.fromString(getActiveDocstore().getUuid());
+    }
 
 	public static User getActiveUser() {
 		return getPrincipal().getUser();

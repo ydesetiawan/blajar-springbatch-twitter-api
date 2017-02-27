@@ -85,6 +85,12 @@
 												Role</td>
 											<td th:text="*{userRoleList}">user role</td>
 										</tr>
+										<tr>
+											<td
+												th:text="${#messages.msg('label.userprofile.userdocstorelink')}">User
+												Docstore Link</td>
+											<td th:text="*{userDocstoreList}">docstore</td>
+										</tr>
 									</tbody>
 									<tbody th:if="${action=='edit' or action=='add'}">
 										<tr>
@@ -134,14 +140,27 @@
 														th:value="${role.id.name}" th:text="${role.id.name}"></option>
 											</select></td>
 										</tr>
+										<tr>
+											<td
+												th:text="${#messages.msg('label.userprofile.userdocstorelink')}">User
+												Docstore Link</td>
+											<td><select id="docstores" name="docstore"
+												class="form-control" multiple="multiple"
+												th:field="*{docstores}">
+													<option th:each="docstore : ${docstoreList}"
+														th:value="${docstore.uuid}"
+														th:text="${docstore.reference}"></option>
+											</select></td>
+										</tr>
 									</tbody>
 								</table>
 								<input type="hidden" th:name="action" th:field="*{action}" /> <input
 									th:if="${action!='add'}" type="hidden" th:name="roleNames"
 									th:field="*{roleNames}" /> <input type="hidden" th:name="uuid"
-									th:field="*{uuid}" /> <input type="hidden"
-									th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-								<a th:if="${action!='edit' and action!='add'}"
+									th:field="*{uuid}" /><input
+									type="hidden" th:name="${_csrf.parameterName}"
+									th:value="${_csrf.token}" /> <a
+									th:if="${action!='edit' and action!='add'}"
 									th:href="@{/user/__*{uuid}__/edit}"
 									class="btn btn-sm btn-warning"
 									th:text="${#messages.msg('label.button.edit')}">Edit</a>
@@ -224,6 +243,26 @@
 					}, 8000);
 
 					$("#roleNames").bootstrapDualListbox({
+						bootstrap2Compatible : false,
+						moveAllLabel : 'MOVE ALL',
+						removeAllLabel : 'REMOVE ALL',
+						filterPlaceHolder : 'FILTER',
+						filterSelected : '2',
+						filterNonSelected : '1',
+						moveOnSelect : true,
+						preserveSelectionOnMove : 'all',
+						helperSelectNamePostfix : '_myhelper',
+						selectedListLabel : 'Selected',
+						nonSelectedListLabel : 'Unselected'
+					}).bootstrapDualListbox('setMoveAllLabel',
+							'Move all elements').bootstrapDualListbox(
+							'setRemoveAllLabel', 'Remove all elements')
+							.bootstrapDualListbox('setSelectedFilter',
+									undefined).bootstrapDualListbox(
+									'setNonSelectedFilter', undefined)
+							.bootstrapDualListbox('refresh')
+
+					$('#docstores').bootstrapDualListbox({
 						bootstrap2Compatible : false,
 						moveAllLabel : 'MOVE ALL',
 						removeAllLabel : 'REMOVE ALL',
