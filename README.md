@@ -1,4 +1,4 @@
-# YDAPPS
+# BLajar Spring Batch
 
 Example get data From Twitter using spring batch and quartz
 
